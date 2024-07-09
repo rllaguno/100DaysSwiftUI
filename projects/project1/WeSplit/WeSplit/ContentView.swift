@@ -54,10 +54,12 @@ struct ContentView: View {
                 
                 Section("Total amount:") {
                     Text(total, format: .currency(code: currencyFormat))
+                        .foregroundStyle(tipPercentage == 0 ? .red : .black)
                 }
                 
                 Section("Total amount per person:") {
                     Text(totalPerPerson, format: .currency(code: currencyFormat))
+                        .foregroundStyle(tipPercentage == 0 ? .red : .black)
                 }
                 
             }
