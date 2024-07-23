@@ -41,24 +41,117 @@ struct ContentView: View {
     
     @State private var showingAddExpense = false
     
+    @State private var personalSum = 0.0
+    @State private var businessSum = 0.0
+
+    
     var body: some View {
         NavigationStack {
             List {
-                ForEach(expenses.items) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.name)
-                                .font(.headline)
-                            
-                            Text(item.type)
+                Section {
+                    Text("Personal Expenses")
+                        .font(.headline)
+                    
+                    ForEach(expenses.items) { item in
+                        if item.type == "Personal" {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                    
+                                    Text(item.type)
+                                }
+                                
+                                Spacer()
+                                HStack {
+                                    Text(item.amount, format: .currency(code: "MXN"))
+                                    
+                                    if item.amount < 10.0 {
+                                        Image(systemName: "exclamationmark.square")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.green)
+                                    } else if item.amount > 10.0 && item.amount < 100.0 {
+                                        Image(systemName: "exclamationmark.square")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.yellow)
+                                    } else {
+                                        Image(systemName: "exclamationmark.square")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                            }
+                            .onAppear(perform: getPersonalExpense)
                         }
+                    }
+                    .onDelete(perform: removeItems)
+                }
+                
+                Section {
+                    
+                    Text("Business Expenses")
+                        .font(.headline)
+                    
+                    ForEach(expenses.items) { item in
+                        if item.type == "Business" {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                    
+                                    Text(item.type)
+                                }
+                                
+                                Spacer()
+                                HStack {
+                                    Text(item.amount, format: .currency(code: "MXN"))
+                                    
+                                    if item.amount < 10.0 {
+                                        Image(systemName: "exclamationmark.square")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.green)
+                                    } else if item.amount > 10.0 && item.amount < 100.0 {
+                                        Image(systemName: "exclamationmark.square")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.yellow)
+                                    } else {
+                                        Image(systemName: "exclamationmark.square")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                            }
+                            .onAppear(perform: getBusinessExpense)
+                        }
+                    }
+                    .onDelete(perform: removeItems)
+
+                }
+                
+                Section {
+                    Text("Total Expenses")
+                        .font(.headline)
+                    
+                    HStack {
+                        Text("Personal")
                         
                         Spacer()
                         
-                        Text(item.amount, format: .currency(code: "USD"))
+                        Text(personalSum, format: .currency(code: "MXN"))
+                            .onAppear{
+                                getPersonalExpense()
+                            }
+                    }
+                    
+                    HStack {
+                        Text("Business")
+                        
+                        Spacer()
+                        
+                        Text(businessSum, format: .currency(code: "MXN"))
+
                     }
                 }
-                .onDelete(perform: removeItems)
             }
             .navigationTitle("iExpense")
             .toolbar {
@@ -74,6 +167,28 @@ struct ContentView: View {
     
     func removeItems(at offsets: IndexSet) {
         expenses.items.remove(atOffsets: offsets)
+        getPersonalExpense()
+        getBusinessExpense()
+    }
+    
+    func getPersonalExpense(){
+        personalSum = 0.0
+        for i in expenses.items {
+            if i.type == "Personal" {
+                personalSum += i.amount
+            }
+        }
+        
+    }
+    
+    func getBusinessExpense(){
+        businessSum = 0.0
+        for i in expenses.items {
+            if i.type == "Business" {
+                businessSum += i.amount
+            }
+        }
+        
     }
 }
 
