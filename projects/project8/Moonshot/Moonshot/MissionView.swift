@@ -28,12 +28,14 @@ struct MissionView: View {
                     }
                     .padding(.top)
                 
+                Text(mission.formattedLaunchDate != "N/A" ? "Launched in \(mission.formattedLaunchDate)" : "Mission did not launch")
+                    .font(.headline)
+                    .foregroundStyle(.gray)
+                    .padding(.top)
+                
 
                 VStack(alignment: .leading) {
-                    Rectangle()
-                        .frame(height: 2)
-                        .foregroundStyle(.lightBackground)
-                        .padding(.vertical)
+                    RectangleSeparatorView()
                     
                     Text("Mission Highlights")
                         .font(.title.bold())
@@ -41,10 +43,7 @@ struct MissionView: View {
 
                     Text(mission.description)
                     
-                    Rectangle()
-                        .frame(height: 2)
-                        .foregroundStyle(.lightBackground)
-                        .padding(.vertical)
+                    RectangleSeparatorView()
                     
                     Text("Crew Members")
                         .font(.title.bold())
