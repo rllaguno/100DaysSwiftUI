@@ -8,7 +8,7 @@ struct ContentView: View {
         GridItem(.adaptive(minimum: 150))
     ]
     
-    @State private var isGridView: Bool = false
+    @State private var isGridView: Bool = true
     
     var body: some View {
         NavigationStack {
@@ -34,12 +34,13 @@ struct ContentView: View {
         ScrollView {
             LazyVGrid(columns: columns) {
                 ForEach(missions) { mission in
-                    NavigationLink{
-                        MissionView(mission: mission, astronauts: astronauts)
-                    } label: {
+                    NavigationLink(value: mission) {
                         missionCard(mission: mission)
                     }
                 }
+            }
+            .navigationDestination(for: Mission.self) {mission in
+                MissionView(mission: mission, astronauts: astronauts)
             }
             .padding([.horizontal, .bottom])
         }
@@ -48,12 +49,22 @@ struct ContentView: View {
     private var listView: some View {
         List {
             ForEach(missions) { mission in
-                NavigationLink{
-                    MissionView(mission: mission, astronauts: astronauts)
-                } label: {
+                NavigationLink(value: mission) {
                     missionCard(mission: mission)
                 }
+                //Can also use
+                /*
+                 NavigationLink(
+                     destination: MissionView(mission: mission, astronauts: astronauts),
+                     label: {
+                         missionCard(mission: mission)
+                     }
+                 )
+                */
             }
+        }
+        .navigationDestination(for: Mission.self) { mission in
+            MissionView(mission:mission, astronauts: astronauts)
         }
         .listStyle(.plain)
         .listRowBackground(Color.darkBackground)
