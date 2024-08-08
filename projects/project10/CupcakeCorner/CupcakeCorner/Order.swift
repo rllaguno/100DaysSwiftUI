@@ -21,6 +21,10 @@ class Order: Codable {
         case _zip = "zip"
     }
     
+    private enum UserDefaultsKeys: String {
+        case name, streetAddress, city, zip
+    }
+    
     static let types = ["Vanilla", "Strawberry", "Chocolate", "Rainbow"]
     
     var type = 0
@@ -37,13 +41,32 @@ class Order: Codable {
     var extraFrosting = false
     var addSprinkles = false
     
-    var name = ""
-    var streetAddress = ""
-    var city = ""
-    var zip = ""
+    var name = "" {
+        didSet {
+            saveToUserDefaults(key: .name, value: name)
+        }
+    }
+        
+    var streetAddress = "" {
+        didSet {
+            saveToUserDefaults(key: .streetAddress, value: streetAddress)
+        }
+    }
+    
+    var city = "" {
+        didSet {
+            saveToUserDefaults(key: .city, value: city)
+        }
+    }
+    
+    var zip = "" {
+        didSet {
+            saveToUserDefaults(key: .zip, value: zip)
+        }
+    }
     
     var hasValidAddress: Bool {
-        if name.isEmpty || streetAddress.isEmpty || city.isEmpty || zip.isEmpty {
+        if name.isEmpty || streetAddress.isEmpty || city.isEmpty || zip.isEmpty || name.hasPrefix(" ") || streetAddress.hasPrefix(" ") || city.hasPrefix(" ") || zip.hasPrefix(" "){
             return false
         }
         
@@ -65,4 +88,26 @@ class Order: Codable {
         
         return cost
     }
+    
+    init() {
+        name = loadFromUserDefaults(key: .name) ?? ""
+        streetAddress = loadFromUserDefaults(key: .streetAddress) ?? ""
+        city = loadFromUserDefaults(key: .city) ?? ""
+        zip = loadFromUserDefaults(key: .zip) ?? ""
+    }
+    
+    private func saveToUserDefaults(key: UserDefaultsKeys, value: String) {
+        if let encoded = try? JSONEncoder().encode(value) {
+            UserDefaults.standard.set(encoded, forKey: key.rawValue)
+        }
+    }
+    
+    private func loadFromUserDefaults(key: UserDefaultsKeys) -> String? {
+        if let data = UserDefaults.standard.data(forKey: key.rawValue),
+           let decoded = try? JSONDecoder().decode(String.self, from: data) {
+            return decoded
+        }
+        return nil
+    }
+    
 }
