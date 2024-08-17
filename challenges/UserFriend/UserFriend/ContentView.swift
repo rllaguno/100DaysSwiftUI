@@ -9,7 +9,8 @@ import SwiftData
 import SwiftUI
 
 struct ContentView: View {
-    @State private var users = [User]()
+    @Environment(\.modelContext) var modelContext
+    @Query var users: [User]
     
     var body: some View {
         NavigationStack {
@@ -40,7 +41,9 @@ struct ContentView: View {
             }
             .navigationTitle("UserFriend")
             .task {
-                await loadData()
+                if users.isEmpty {
+                    await loadData()
+                }
             }
         }
     }
@@ -56,8 +59,9 @@ struct ContentView: View {
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
             let decodedData = try decoder.decode([User].self, from: data)
-            users = decodedData
-
+            for user in decodedData {
+                modelContext.insert(user)
+            }
         } catch {
             print(error)
         }
