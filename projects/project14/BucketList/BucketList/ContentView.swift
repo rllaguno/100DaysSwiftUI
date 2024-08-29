@@ -21,19 +21,33 @@ struct ContentView: View {
     var body: some View {
         if viewModel.isUnlocked {
             MapReader { proxy in
-                Map(initialPosition: startPosition) {
-                    ForEach(viewModel.locations) { location in
-                        Annotation(location.name, coordinate: location.coordinate) {
-                            Image(systemName: "star.circle")
-                                .resizable()
-                                .foregroundStyle(.red)
-                                .frame(width: 44, height: 44)
-                                .background(.white)
-                                .clipShape(.circle)
-                                .onLongPressGesture {
-                                    viewModel.selectedPlace = location
-                                }
+                ZStack {
+                    Map(initialPosition: startPosition) {
+                        ForEach(viewModel.locations) { location in
+                            Annotation(location.name, coordinate: location.coordinate) {
+                                Image(systemName: "star.circle")
+                                    .resizable()
+                                    .foregroundStyle(.red)
+                                    .frame(width: 44, height: 44)
+                                    .background(.white)
+                                    .clipShape(.circle)
+                                    .onLongPressGesture {
+                                        viewModel.selectedPlace = location
+                                    }
+                            }
                         }
+                    }
+                    .mapStyle(viewModel.standardStyle ? .standard : .hybrid)
+                    
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Button(viewModel.standardStyle ? "Standard" : "Hybrid") {
+                                viewModel.standardStyle.toggle()
+                            }
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                        }
+                        .foregroundStyle(.white)
+                        Spacer()
                     }
                 }
                 .onTapGesture { position in
@@ -53,6 +67,9 @@ struct ContentView: View {
                 .background(.blue)
                 .foregroundStyle(.white)
                 .clipShape(.capsule)
+                .alert(viewModel.errorMessage, isPresented: $viewModel.authenticationError) {
+                    Button("OK") { }
+                }
         }
     }
 }

@@ -15,7 +15,10 @@ extension ContentView {
     class ViewModel {
         private(set) var locations: [Location]
         var selectedPlace: Location?
-        var isUnlocked = false
+        var isUnlocked = true
+        var standardStyle = true
+        var errorMessage = ""
+        var authenticationError = false
         
         let savePath = URL.documentsDirectory.appending(path: "SavedPlaces")
         
@@ -61,13 +64,16 @@ extension ContentView {
                 
                 context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
                     if success {
+                        self.authenticationError = false
                         self.isUnlocked = true
                     } else {
-                        // error
+                        self.errorMessage = "Identity could not be verified"
+                        self.authenticationError = true
                     }
                 }
             } else {
-                    //no biometrics
+                self.errorMessage = "No biometrics in device"
+                self.authenticationError = true
             }
         }
     }
