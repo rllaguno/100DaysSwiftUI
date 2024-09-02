@@ -50,6 +50,9 @@ struct ExpensesView: View {
                         }
                     }
                     .onAppear(perform: getPersonalExpense)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(item.name), \(item.amount)")
+                    .accessibilityHint("Personal expense")
                 }
             }
             .onDelete(perform: removeItems)
@@ -90,6 +93,9 @@ struct ExpensesView: View {
                         }
                     }
                     .onAppear(perform: getBusinessExpense)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(item.name), \(item.amount)")
+                    .accessibilityHint("Business expense")
                 }
             }
             .onDelete(perform: removeItems)
