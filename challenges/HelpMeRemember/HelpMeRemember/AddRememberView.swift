@@ -15,7 +15,7 @@ struct AddRememberView: View {
     @State private var name = ""
     @State private var pickerItem: PhotosPickerItem?
     @State private var selectedImage: Image?
-    
+    @State private var selectedUIImage: UIImage?
     
     var body: some View {
         NavigationStack {
@@ -36,9 +36,14 @@ struct AddRememberView: View {
                                     .frame(width: 64.0, height: 64.0)
                                 PhotosPicker("Tap to import an image of a person you want to remember.", selection: $pickerItem, matching: .images)
                             }
-                            .onChange(of: pickerItem) {
+                            .onChange(of: pickerItem) { _, newItem in
                                 Task {
-                                    selectedImage = try await pickerItem?.loadTransferable(type: Image.self)
+                                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                        if let uiImage = UIImage(data: data) {
+                                            selectedUIImage = uiImage
+                                            selectedImage = Image(uiImage: uiImage)
+                                        }
+                                    }
                                 }
                             }
                         } else {
@@ -53,11 +58,12 @@ struct AddRememberView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        guard let uiImage = convertToUIImage(from: selectedImage ?? Image(systemName: "photo")) else { return }
-                        guard let imageData = convertToData(from: uiImage) else { return }
-                        let remember = Remember(name: name, photo: imageData)
-                        modelContext.insert(remember)
-                        dismiss()
+                        if let selectedUIImage = selectedUIImage {
+                            let imageData = uiImageToData(selectedUIImage)
+                            let remember = Remember(name: name, photo: imageData)
+                            modelContext.insert(remember)
+                            dismiss()
+                        }
                     } label: {
                         Text("Save")
                     }
@@ -67,20 +73,10 @@ struct AddRememberView: View {
         }
     }
     
-    private func convertToUIImage(from image: Image) -> UIImage? {
-        let controller = UIHostingController(rootView: image.resizable().scaledToFit().frame(width: 300, height: 300))
-        let view = controller.view
-        
-        let renderer = UIGraphicsImageRenderer(bounds: view?.bounds ?? CGRect.zero)
-        let uiImage = renderer.image { _ in
-            view?.drawHierarchy(in: view?.bounds ?? CGRect.zero, afterScreenUpdates: true)
-        }
-        return uiImage
+    func uiImageToData(_ uiImage: UIImage) -> Data {
+        return uiImage.jpegData(compressionQuality: 0.8)!
     }
-
-    private func convertToData(from uiImage: UIImage) -> Data? {
-        return uiImage.jpegData(compressionQuality: 0.8)
-    }
+    
 }
 
 #Preview {

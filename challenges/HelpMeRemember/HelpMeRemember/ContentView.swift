@@ -10,16 +10,18 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) var modelContext
-    @Query var remembers: [Remember]
+    @Query(sort: \Remember.name) var remembers: [Remember]
     @State private var showingAddRemember = false
     
     var body: some View {
         NavigationStack {
             List {
                 ForEach(remembers) { remember in
-                    NavigationLink(destination: RememberView()) {
+                    NavigationLink(destination: RememberView(remember: remember)) {
                         HStack(spacing: 10) {
                             remember.convert()
+                                .resizable()
+                                .frame(width: 100, height: 100)
                                 .clipShape(Circle())
                             
                             Text(remember.name)
