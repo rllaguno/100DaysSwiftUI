@@ -35,12 +35,17 @@ struct ProspectsView: View {
     var body: some View {
         NavigationStack {
             List(prospects, selection: $selectedProspects) { prospect in
-                VStack(alignment: .leading) {
-                    Text(prospect.name)
-                        .font(.headline)
+                HStack {
+                    Image(systemName: "checkmark")
+                        .foregroundColor(prospect.isContacted == true ? .green : .gray)
                     
-                    Text(prospect.emailAddress)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading) {
+                        Text(prospect.name)
+                            .font(.headline)
+                        
+                        Text(prospect.emailAddress)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .swipeActions {
                     Button("Delete", systemImage: "trash", role: .destructive) {
@@ -73,6 +78,7 @@ struct ProspectsView: View {
                             isShowingScanner = true
                         }
                     }
+                    
                     
                     ToolbarItem(placement: .topBarLeading) {
                         EditButton()
